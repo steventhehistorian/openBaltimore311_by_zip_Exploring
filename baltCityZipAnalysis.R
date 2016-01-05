@@ -10,6 +10,7 @@ library(ggplot2)
                 dlURLBaltData <- "https://data.baltimorecity.gov/api/views/9agw-sxsr/rows.csv?accessType=DOWNLOAD"
                         download.file(dlURLBaltData, destfile = paste0(c("balt311"),gsub("-","",Sys.Date()),c(".csv")))
                                 allBaltData <- read.csv(paste0(c("balt311"),gsub("-","",Sys.Date()),c(".csv")),header = TRUE)
+                                        allBaltData <- tbl_df(allBaltData)
         }
 
 ## <---- This section of code load the data and creates the 3 tables that you can use to analyze the population & income by zip code and how that relates to Baltimore City 311 contacts.  
