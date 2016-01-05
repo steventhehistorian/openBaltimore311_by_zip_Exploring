@@ -5,13 +5,32 @@ library(dplyr)
 library(ggplot2)
 library(stringr)
 
-setwd("C:/Users/sreddick/Desktop/311/baltimore_city_311_analysis")
-
+        ## If loop tests first if the big data set is in memory already and then either loads it or downloads it and loads it, depending on whether the file exists on the user's machine.
         if(!exists("allBaltData")) {
-                ## Download the dataset (originally obtained 1/4/2016).  Be patient, it's a big file.
-                dlURLBaltData <- "https://data.baltimorecity.gov/api/views/9agw-sxsr/rows.csv?accessType=DOWNLOAD"
-                download.file(dlURLBaltData, destfile = paste0(c("balt311"),gsub("-","",Sys.Date()),c(".csv")))
-                allBaltData <- read.csv(paste0(c("balt311"),gsub("-","",Sys.Date()),c(".csv")),header = TRUE)
+                
+                haveBigData <- FALSE
+                
+                if(dir.exists("C:/Users/sreddick/Desktop/311/baltimore_city_311_analysis")) {
+                        
+                        setwd("C:/Users/sreddick/Desktop/311/baltimore_city_311_analysis")
+                        
+                        if(file.exists("balt31120160104.csv")) {
+                                ## If the directory and file exist, just load it and then set a flag to skip the rest of the bigData download.
+                                allBaltData <- read.csv("balt31120160104.csv",header = TRUE)
+                                ## This flag will make sure I don't download the dataset if I already have it.
+                                haveBigData <- TRUE
+                        }         
+                }
+                
+                if(haveBigData == FALSE) {
+                
+                        ## Download the dataset (originally obtained 1/4/2016).  Be patient, it's a big file.
+                        dlURLBaltData <- "https://data.baltimorecity.gov/api/views/9agw-sxsr/rows.csv?accessType=DOWNLOAD"
+                        download.file(dlURLBaltData, destfile = paste0(c("balt311"),gsub("-","",Sys.Date()),c(".csv")))
+                        allBaltData <- read.csv(paste0(c("balt311"),gsub("-","",Sys.Date()),c(".csv")),header = TRUE)
+                
+                }
+                
                 allBaltData <- tbl_df(allBaltData)
                 allBaltData <- mutate(allBaltData,createdDate = as.character(createdDate))
                 
@@ -34,6 +53,11 @@ setwd("C:/Users/sreddick/Desktop/311/baltimore_city_311_analysis")
                 ## Turn it into a tbl_df
                 cityDeptCodePrefixAndDeptTable <- tbl_df(cityDeptCodePrefixAndDeptTable)
                 
+                ## Alternatively, you can get it online! 
+                # download.file("http://docs.google.com/spreadsheets/d/1AsC9agZs8KuyUrZQ_2iOqSlrU_h9YMDlbZbFAyPWTRg/edit?usp=sharing", destfile = "cityDeptAgencyTable.csv")
+                # cityDeptCodePrefixAndDeptTable <- read.csv("cityDeptAgencyTable.csv", header = TRUE)
+                ## Turn it into a tbl_df
+                # cityDeptCodePrefixAndDeptTable <- tbl_df(cityDeptCodePrefixAndDeptTable)
                 
 ##<------- END SECTION -------->
 
@@ -67,17 +91,27 @@ setwd("C:/Users/sreddick/Desktop/311/baltimore_city_311_analysis")
                        
         
         ##<------- END SECTION -------->      
-                
 
+                                
+                                
+                                
+                                
+##<----Merging the original 311 data with the parsed dept/ code list so we can see what goes with what dept.------> 
+                                
+                                
+        ## Uses word in the stringr package to parse the 1st word of the code description column and populate a new column with it so we can match it.                                  
+        allBaltData$departmentAgency <- word(allBaltData$codeDescription, 1, sep = "-")
+                allBaltData$departmentAgency <-  word(allBaltData$departmentAgency, 1, sep = " ")
+                        allBaltData$departmentAgency <- as.factor(allBaltData$departmentAgency)
+                               ## Merges/joins the Baltimore City 311 code/dept table with the 311 records.
+                                allBaltData <- left_join(allBaltData, cityDeptCodePrefixAndDeptTable)                    
+                                                        
+##<------- END SECTION -------->                           
+                                
+                                
+                                
+        
 
-       
-                                
-                                
-                                
-                                
-                                
-                                
-                                
 ############  How I went about merging/ joining tables. #########
                                 
                                 
