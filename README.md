@@ -10,3 +10,6 @@ baltCityZipAnalysis.R
 
 ####Looking at requests by city department.
 baltCityHourlyCalls.R
+
+#### text version of one of the tables used in baltCityHourlyCalls.R script.
+cityDeptAgencyTable
